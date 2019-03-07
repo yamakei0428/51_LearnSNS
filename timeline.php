@@ -1,9 +1,14 @@
 <?php
+session_start();
+
+echo '<pre>';
+var_dump($_SESSION);
+echo '</pre>';
 
 ?>
-<?php include('layouts/header.php'); ?>
+<?php include 'layouts/header.php'; ?>
 <body style="margin-top: 60px; background: #E4E6EB;">
-    <?php include('navbar.php'); ?>
+    <?php include 'navbar.php'; ?>
     <div class="container">
         <div class="row">
             <div class="col-xs-3">
@@ -46,7 +51,7 @@
                             <a href="edit.php" class="btn btn-success btn-xs">編集</a>
                             <a onclick="return confirm('ほんとに消すの？');" href="#" class="btn btn-danger btn-xs">削除</a>
                         </div>
-                        <?php include('comment_view.php'); ?>
+                        <?php include 'comment_view.php'; ?>
                     </div>
                 </div>
                 <div aria-label="Page navigation">
@@ -59,5 +64,5 @@
         </div>
     </div>
 </body>
-<?php include('layouts/footer.php'); ?>
+<?php include 'layouts/footer.php'; ?>
 </html>
