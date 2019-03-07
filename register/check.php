@@ -1,48 +1,41 @@
 <?php
 session_start();
-//require(ファイル名);
-//指定されたファイルの中身が丸々移植される
+// require(ファイル名);
+// 指定されたファイルの中身が丸々移植される
 require '../dbconnect.php';
-
-//不正遷移制御
-//signup.phpから来ていない場合、signup.phpに強制遷移される
+// 不正遷移制御
+// signup.phpから来ていない場合、signup.phpに強制遷移させる
 if (!isset($_SESSION['51_LearnSNS'])) {
     header('Location: signup.php');
     exit();
 }
-
-//echo '<pre>';
-//var_dump($_SESSION);
-//echo '</pre>';
-
+// echo '<pre>';
+// var_dump($_SESSION);
+// echo '</pre>';
 $name = $_SESSION['51_LearnSNS']['name'];
 $email = $_SESSION['51_LearnSNS']['email'];
 $password = $_SESSION['51_LearnSNS']['password'];
 $img_name = $_SESSION['51_LearnSNS']['img_name'];
-
-//POST送信時
+// POST送信時
 if (!empty($_POST)) {
-    //DBへの登録処理
-    //?に直接変数の値を入れないのはセキュリティ対策
-    //SQLインジェクションを防ぐため
-    //ダブル処理で意図しないDB処理操作が行われないようにしている
-    $sql = 'INSERT INTO `users`(`name`,`email`,`password`,`img_name`,`created`)VALUES(?,?,?,?,NOW())';
-    //password_hash(暗号化したい文字列、暗号化する方法);
-    //指定された文字列をハッシュ化して暗号にする
-    $data = [$name, $email, password_hash($passwoed, PASSWORD_DEFAULT), $img_name];
+    // DBへの登録処理
+    // ?に直接変数の値を入れないのはセキュリティ対策
+    // SQLインジェクションを防ぐため
+    // タプル処理で意図しないDB操作が行われないようにしている
+    $sql = 'INSERT INTO `users` (`name`, `email`, `password`, `img_name`, `created`) VALUES (?, ?, ?, ?, NOW())';
+    // password_hash(暗号化したい文字列, 暗号化する方法);
+    // 指定された文字列をハッシュ化して暗号にする
+    $data = [$name, $email, password_hash($password, PASSWORD_DEFAULT), $img_name];
     $stmt = $dbh->prepare($sql);
     $stmt->execute($data);
-
-    //セッション情報の処理
-    //unset(配列);
-    //指定された配列をメモリから破棄する
+    // セッション情報の破棄
+    // unset(配列);
+    // 指定された配列をメモリから破棄する
     unset($_SESSION['51_LearnSNS']);
-
-    //作成完了ページ遷移
+    // 作成完了ページへ遷移
     header('Location: thanks.php');
     exit();
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -64,7 +57,12 @@ if (!empty($_POST)) {
                     <div class="col-xs-8">
                         <div>
                             <span>ユーザー名</span>
-                           <p class="lead"><?php echo htmlspecialchars($name); ?></p>
+                            <!--
+                                htmlspecialchars(文字列)
+                                XSS(クロスサイトスクリプティング)対策
+                                悪意のあるプログラムが書き込まれたとしても、単純な文字列として扱い、サービスを攻撃から守る
+                            -->
+                            <p class="lead"><?php echo htmlspecialchars($name); ?></p>
                         </div>
                         <div>
                             <span>メールアドレス</span>
@@ -72,19 +70,21 @@ if (!empty($_POST)) {
                         </div>
                         <div>
                             <span>パスワード</span>
+                            <!-- パスワードはソーシャルハッキング対策で表示しない -->
                             <p class="lead">●●●●●●●●</p>
                         </div>
                         <form method="POST" action="check.php">
-                        <!--
-                            GET送信時のパラメーター送信
-                            URL?キー＝値
-                            signup.phpに「戻る」で遷移したことがわかるようにパラメータを付与している
+                            <!--
+                                GET送信時のパラメータ送信
+                                URL?キー=値
+                                signup.phpに「戻る」で遷移したことがわかるようにパラメータを付与している
                             -->
                             <a href="signup.php?action=rewrite" class="btn btn-default">&laquo;&nbsp;戻る</a> | 
                             <!--
-                                formタグ内になにもデータがないと、POST送信しても$_POSTが空になってしまう
+                                formタグ内に何もデータがないと、POST送信しても$_POSTが空になってしまう
                                 if(!empty($_POST))これが使えなくなってしまう
-                                POST送信の値を何かしら入れて置きたいので下記のinputタグ
+                                POST送信に値を何かしら入れておきたいので、
+                                下記のinputタグを記述
                             -->
                             <input type="hidden" name="action" value="submit">
                             <input type="submit" class="btn btn-primary" value="ユーザー登録">
